@@ -21,7 +21,11 @@ public class CSVDataStoreFactory implements FileDataStoreFactorySpi {
 
     public static final DataStoreFactorySpi.Param PARAM_URL = new Param("url", URL.class, "url to a .csv file");
     public static final DataStoreFactorySpi.Param PARAM_SRS = new Param("srs", String.class, "override srs");
-    
+    public static final DataStoreFactorySpi.Param PARAM_CHECKCOLUMNCOUNT = new Param("check_column_count", Boolean.class, "Check if columncount of a field is valid");
+    public static final DataStoreFactorySpi.Param PARAM_SEPERATOR = new Param("seperator", String.class, "value seperator");
+    public static final DataStoreFactorySpi.Param PARAM_COLUMN_X = new Param("column_x", Integer.class, "X column to use for creating a point geometry");
+    public static final DataStoreFactorySpi.Param PARAM_COLUMN_Y = new Param("column_y", Integer.class, "y column to use for creating a point geometry");
+
     public String getDisplayName() {
         return "CSV File";
     }
@@ -110,9 +114,58 @@ public class CSVDataStoreFactory implements FileDataStoreFactorySpi {
 
     public DataStore createDataStore(Map params) throws IOException {
         if (!canProcess(params)) {
-            throw new FileNotFoundException("CSV file not found: " + params);
+            throw new FileNotFoundException("Unable to process CSV file: " + params);
         }
-        return new CSVDataStore((URL) params.get(PARAM_URL.key), (String) params.get(PARAM_SRS.key));
+
+        URL url = (URL) params.get(PARAM_URL.key);
+        String srs = (String) params.get(PARAM_SRS.key);
+
+        // Check if params contain keys (checkColumnCount, seperator, column_x, column_y), otherwise use default value
+        char seperator = (params.containsKey(PARAM_SEPERATOR.key)
+                ? (((String) params.get(PARAM_SEPERATOR.key)).length() == 1
+                ? ((String) params.get(PARAM_SEPERATOR.key)).charAt(0)
+                : ',')
+                : ',');
+
+        boolean checkColumnCount;
+        if (params.containsKey(PARAM_CHECKCOLUMNCOUNT.key)) {
+            if (params.get(PARAM_CHECKCOLUMNCOUNT.key) instanceof Boolean) {
+                checkColumnCount = (Boolean) params.get(PARAM_CHECKCOLUMNCOUNT.key);
+            } else if (params.get(PARAM_CHECKCOLUMNCOUNT.key) instanceof String) {
+                checkColumnCount = ((String) params.get(PARAM_CHECKCOLUMNCOUNT.key)).toLowerCase().equals("true");
+            } else {
+                checkColumnCount = false;
+            }
+        } else {
+            checkColumnCount = false;
+        }
+
+        int column_x, column_y;
+        if (params.containsKey(PARAM_COLUMN_X.key)) {
+            if (params.get(PARAM_COLUMN_X.key) instanceof Integer) {
+                column_x = (Integer) params.get(PARAM_COLUMN_X.key);
+            } else if (params.get(PARAM_COLUMN_X.key) instanceof String) {
+                column_x = Integer.parseInt((String) params.get(PARAM_COLUMN_X.key));
+            } else {
+                column_x = 0;
+            }
+        } else {
+            column_x = 0;
+        }
+
+        if (params.containsKey(PARAM_COLUMN_Y.key)) {
+            if (params.get(PARAM_COLUMN_Y.key) instanceof Integer) {
+                column_y = (Integer) params.get(PARAM_COLUMN_Y.key);
+            } else if (params.get(PARAM_COLUMN_Y.key) instanceof String) {
+                column_y = Integer.parseInt((String) params.get(PARAM_COLUMN_Y.key));
+            } else {
+                column_y = 1;
+            }
+        } else {
+            column_y = 1;
+        }
+
+        return new CSVDataStore(url, srs, checkColumnCount, seperator, column_x, column_y);
     }
 
     public DataStore createNewDataStore(Map params) throws IOException {

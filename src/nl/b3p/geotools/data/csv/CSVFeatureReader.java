@@ -35,8 +35,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public class CSVFeatureReader implements FeatureReader {
 
-    public static final int POINT_X = 0;
-    public static final int POINT_Y = 1;
     private static final Log log = LogFactory.getLog(CSVDataStore.class);
     private GeometryFactory gf;
     private SimpleFeatureType ft;
@@ -44,10 +42,29 @@ public class CSVFeatureReader implements FeatureReader {
     private SimpleFeature feature;
     private CsvInputStream inputstream;
     private int featureId = 0;
+    private int column_x, column_y;
+    private int remove_x, remove_y;
 
-    public CSVFeatureReader(URL url, String typeName, String srs) throws IOException {
+    public CSVFeatureReader(URL url, String typeName, String srs, boolean checkColumnCount, char seperator, int column_x, int column_y) throws IOException {
         CountingInputStream cis = new CountingInputStream(url.openStream());
         inputstream = new CsvInputStream(new InputStreamReader(cis));
+        inputstream.setCheckColumnCount(checkColumnCount);
+        inputstream.setSeparator(seperator);
+
+        this.column_x = column_x;
+        this.column_y = column_y;
+
+        if (column_x < column_y) {
+            remove_x = column_x;
+            remove_y = column_y - 1;
+
+        } else if (column_x > column_y) {
+            remove_x = column_x - 1;
+            remove_y = column_y;
+
+        } else {
+            throw new IOException("X column and Y column have the same value.");
+        }
 
         createFeatureType(typeName, srs);
         gf = new GeometryFactory();
@@ -86,8 +103,10 @@ public class CSVFeatureReader implements FeatureReader {
             ftb.add("the_geom", Geometry.class);
 
             // Skip first two columns, expected these to be X and Y values
-            for (int i = 2; i < columns.size(); i++) {
-                ftb.add(columns.get(i), String.class);
+            for (int i = 0; i < columns.size(); i++) {
+                if (i != column_x && i != column_y) {
+                    ftb.add(columns.get(i), String.class);
+                }
             }
 
             ft = ftb.buildFeatureType();
@@ -113,10 +132,11 @@ public class CSVFeatureReader implements FeatureReader {
             } else {
                 SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
 
-                Coordinate coordinate = new Coordinate(Double.parseDouble(field.get(POINT_X)), Double.parseDouble(field.get(POINT_Y)));
+                Coordinate coordinate = new Coordinate(Double.parseDouble(field.get(column_x)), Double.parseDouble(field.get(column_y)));
 
-                field.remove(0);
-                field.remove(0);
+                // Remove first two columns
+                field.remove(remove_x);
+                field.remove(remove_y);
 
                 sfb.add(gf.createPoint(coordinate));
                 sfb.addAll(field);
