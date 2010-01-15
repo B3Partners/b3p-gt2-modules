@@ -9,6 +9,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,12 +45,14 @@ public class CSVFeatureReader implements FeatureReader {
     private int featureId = 0;
     private int column_x, column_y;
     private int remove_x, remove_y;
+    private char seperator;
 
     public CSVFeatureReader(URL url, String typeName, String srs, boolean checkColumnCount, char seperator, int column_x, int column_y) throws IOException {
         CountingInputStream cis = new CountingInputStream(url.openStream());
         inputstream = new CsvInputStream(new InputStreamReader(cis));
         inputstream.setCheckColumnCount(checkColumnCount);
         inputstream.setSeparator(seperator);
+        this.seperator = seperator;
 
         this.column_x = column_x;
         this.column_y = column_y;
@@ -98,6 +101,26 @@ public class CSVFeatureReader implements FeatureReader {
             List<String> columns = inputstream.readRecordAsList();
             SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
 
+            if (columns.size() == 1) {
+                String[] values = null;
+
+                if (seperator == ',') {
+                    values = columns.get(0).split(";");
+                    inputstream.setSeparator(';');
+                } else if (seperator == ';') {
+                    values = columns.get(0).split(",");
+                    inputstream.setSeparator(',');
+                } else {
+                    throw new IOException("Please specify a seperator value, columncount returned 1");
+                }
+
+                if (values.length == 1) {
+                    // Column seperator not found
+                    throw new IOException("Invalid septerator ',' & ';' didn't work");
+                }
+                columns = Arrays.asList(values);
+            }
+
             ftb.setName(typeName);
             ftb.setCRS(crs);
             ftb.add("the_geom", Geometry.class);
@@ -132,7 +155,7 @@ public class CSVFeatureReader implements FeatureReader {
             } else {
                 SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
 
-                Coordinate coordinate = new Coordinate(Double.parseDouble(field.get(column_x)), Double.parseDouble(field.get(column_y)));
+                Coordinate coordinate = new Coordinate(fixDecimals(field.get(column_x)), fixDecimals(field.get(column_y)));
 
                 // Remove first two columns
                 field.remove(remove_x);
@@ -150,5 +173,16 @@ public class CSVFeatureReader implements FeatureReader {
     }
 
     public void close() throws IOException {
+    }
+
+    private static double fixDecimals(String value) {
+        value = value.trim();
+        if (value.contains(",")) {
+            if (value.contains(".")) {
+                value = value.replaceAll("[.]", "");
+            }
+            value = value.replaceAll("[,]", ".");
+        }
+        return Double.parseDouble(value);
     }
 }
