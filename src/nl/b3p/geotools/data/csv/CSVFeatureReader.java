@@ -46,13 +46,19 @@ public class CSVFeatureReader implements FeatureReader {
     private int column_x, column_y;
     private int remove_x, remove_y;
     private char seperator;
+    private URL url;
+    private boolean checkColumnCount;
+    private InputStreamReader inputStreamReader;
 
     public CSVFeatureReader(URL url, String typeName, String srs, boolean checkColumnCount, char seperator, int column_x, int column_y) throws IOException {
         CountingInputStream cis = new CountingInputStream(url.openStream());
-        inputstream = new CsvInputStream(new InputStreamReader(cis));
+        inputStreamReader = new InputStreamReader(cis);
+        inputstream = new CsvInputStream(inputStreamReader);
         inputstream.setCheckColumnCount(checkColumnCount);
         inputstream.setSeparator(seperator);
         this.seperator = seperator;
+        this.url = url;
+        this.checkColumnCount = checkColumnCount;
 
         this.column_x = column_x;
         this.column_y = column_y;
@@ -97,8 +103,27 @@ public class CSVFeatureReader implements FeatureReader {
         }
 
         try {
+            List<String> columns = null;
+            try {
+                columns = inputstream.readRecordAsList();
+            } catch (CsvFormatException e) {
+                if (e.getMessage().contains(" but found ")) {
+                    if (seperator == ',') {
+                        inputStreamReader.close();
 
-            List<String> columns = inputstream.readRecordAsList();
+                        CountingInputStream cis = new CountingInputStream(url.openStream());
+                        inputStreamReader = new InputStreamReader(cis);
+                        inputstream = new CsvInputStream(inputStreamReader);
+                        inputstream.setCheckColumnCount(checkColumnCount);
+                        inputstream.setSeparator(';');
+
+                        columns = inputstream.readRecordAsList();
+                    }
+                } else {
+                    throw e;
+                }
+            }
+
             SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
 
             if (columns.size() == 1) {
@@ -173,6 +198,7 @@ public class CSVFeatureReader implements FeatureReader {
     }
 
     public void close() throws IOException {
+        inputStreamReader.close();
     }
 
     private static double fixDecimals(String value) {
