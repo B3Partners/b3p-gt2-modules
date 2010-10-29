@@ -173,9 +173,17 @@ public class CSVFeatureReader implements FeatureReader {
     }
 
     public boolean hasNext() throws IOException {
+        /*try {
+            boolean ready = inputStreamReader.ready();
+        } catch(IOException ioex) {
+            // an IOException is thrown if the stream is already closed. Subsequently, we have no "next".
+            return false;
+        }*/
+
         List<String> field;
         try {
             if ((field = inputstream.readRecordAsList()) == null) {
+                //close();
                 return false;
             } else {
                 SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);

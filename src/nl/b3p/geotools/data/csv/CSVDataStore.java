@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geotools.data.AbstractFileDataStore;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.Query;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 /**
@@ -57,6 +58,7 @@ public class CSVDataStore extends AbstractFileDataStore {
         return getSchema();
     }
 
+    @Override
     public SimpleFeatureType getSchema() throws IOException {
         return (SimpleFeatureType) getFeatureReader().getFeatureType();
     }
@@ -66,8 +68,9 @@ public class CSVDataStore extends AbstractFileDataStore {
         return getFeatureReader();
     }
 
+    @Override
     public FeatureReader getFeatureReader() throws IOException {
-        if (featureReader == null) {
+        if (featureReader == null) { //|| !featureReader.hasNext()) {
             try {
                 featureReader = new CSVFeatureReader(url, typename, srs, checkColumnCount, seperator, column_x, column_y);
             } catch (Exception e) {
@@ -75,5 +78,20 @@ public class CSVDataStore extends AbstractFileDataStore {
             }
         }
         return featureReader;
+    }
+
+    @Override
+    protected int getCount(Query query) throws IOException {
+        //if (query.equals(Query.ALL)) {
+            FeatureReader fr = getFeatureReader();
+            int i = 0;
+            while (fr.hasNext()) {
+                i++;
+            }
+            fr.close();
+            featureReader = null;
+            return i;
+        //}
+        //return super.getCount(query);
     }
 }
