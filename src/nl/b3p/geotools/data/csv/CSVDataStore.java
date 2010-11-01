@@ -83,14 +83,16 @@ public class CSVDataStore extends AbstractFileDataStore {
     @Override
     protected int getCount(Query query) throws IOException {
         //if (query.equals(Query.ALL)) {
-            FeatureReader fr = getFeatureReader();
-            int i = 0;
-            while (fr.hasNext()) {
-                i++;
+            // always returns the count of all features in the csv-file.
+            getFeatureReader();
+            int count = 0;
+            while (featureReader.hasNext()) {
+                featureReader.next(); // not necessary, but more future-proof.
+                count++;
             }
-            fr.close();
+            featureReader.close();
             featureReader = null;
-            return i;
+            return count;
         //}
         //return super.getCount(query);
     }
