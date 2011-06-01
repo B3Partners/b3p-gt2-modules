@@ -22,8 +22,9 @@ public class CSVDataStore extends AbstractFileDataStore {
     private char seperator;
     private int column_x, column_y;
     private boolean checkColumnCount;
+    private String encoding;
 
-    public CSVDataStore(URL url, String srs, boolean checkColumnCount, char seperator, int column_x, int column_y) throws IOException {
+    public CSVDataStore(URL url, String srs, boolean checkColumnCount, char seperator, int column_x, int column_y, String encoding) throws IOException {
         this.url = url;
         this.typename = getURLTypeName(url);
         this.srs = srs;
@@ -31,6 +32,7 @@ public class CSVDataStore extends AbstractFileDataStore {
         this.column_x = column_x;
         this.column_y = column_y;
         this.checkColumnCount = checkColumnCount;
+        this.encoding = encoding;
     }
 
     public String[] getTypeNames() throws IOException {
@@ -72,7 +74,7 @@ public class CSVDataStore extends AbstractFileDataStore {
     public FeatureReader getFeatureReader() throws IOException {
         if (featureReader == null) { //|| !featureReader.hasNext()) {
             try {
-                featureReader = new CSVFeatureReader(url, typename, srs, checkColumnCount, seperator, column_x, column_y);
+                featureReader = new CSVFeatureReader(url, typename, srs, checkColumnCount, seperator, column_x, column_y, encoding);
             } catch (Exception e) {
                 throw new IOException("CSV parse exception" + e.getLocalizedMessage());
             }

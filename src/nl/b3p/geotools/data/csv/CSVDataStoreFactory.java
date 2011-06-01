@@ -23,9 +23,10 @@ public class CSVDataStoreFactory implements FileDataStoreFactorySpi {
     public static final DataStoreFactorySpi.Param PARAM_URL = new Param("url", URL.class, "url to a .csv file");
     public static final DataStoreFactorySpi.Param PARAM_SRS = new Param("srs", String.class, "override srs");
     public static final DataStoreFactorySpi.Param PARAM_CHECKCOLUMNCOUNT = new Param("check_column_count", Boolean.class, "Check if columncount of a field is valid");
-    public static final DataStoreFactorySpi.Param PARAM_SEPERATOR = new Param("seperator", String.class, "value seperator");
+    public static final DataStoreFactorySpi.Param PARAM_SEPERATOR = new Param("seperator", String.class, "value separator");
     public static final DataStoreFactorySpi.Param PARAM_COLUMN_X = new Param("column_x", Integer.class, "X column to use for creating a point geometry");
     public static final DataStoreFactorySpi.Param PARAM_COLUMN_Y = new Param("column_y", Integer.class, "y column to use for creating a point geometry");
+    public static final DataStoreFactorySpi.Param PARAM_ENCODING = new Param("encoding", String.class, "The encoding of the csv-file");
 
     public String getDisplayName() {
         return "CSV File";
@@ -166,7 +167,18 @@ public class CSVDataStoreFactory implements FileDataStoreFactorySpi {
             column_y = -1;
         }
 
-        return new CSVDataStore(url, srs, checkColumnCount, seperator, column_x, column_y);
+        String encoding = null;
+        if (params.containsKey(PARAM_ENCODING.key)) {
+            if (params.get(PARAM_ENCODING.key) instanceof String) {
+                encoding = (String) params.get(PARAM_ENCODING.key);
+            } else {
+                encoding = "";
+            }
+        } else {
+            encoding = "";
+        }
+
+        return new CSVDataStore(url, srs, checkColumnCount, seperator, column_x, column_y, encoding);
     }
 
     public DataStore createNewDataStore(Map params) throws IOException {
