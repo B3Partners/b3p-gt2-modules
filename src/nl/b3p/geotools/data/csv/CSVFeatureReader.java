@@ -43,8 +43,8 @@ public class CSVFeatureReader implements FeatureReader {
     private SimpleFeature feature;
     private CsvInputStream inputstream;
     private int featureId = 0;
-    private int column_x, column_y;
-    private int remove_x, remove_y;
+    private int column_x = -1, column_y = -1;
+    private int remove_x = -1, remove_y = -1;
     private char seperator;
     private URL url;
     private boolean checkColumnCount;
@@ -60,19 +60,21 @@ public class CSVFeatureReader implements FeatureReader {
         this.url = url;
         this.checkColumnCount = checkColumnCount;
 
-        this.column_x = column_x;
-        this.column_y = column_y;
+        if (column_x >= 0 && column_y >= 0) {
+            this.column_x = column_x;
+            this.column_y = column_y;
 
-        if (column_x < column_y) {
-            remove_x = column_x;
-            remove_y = column_y - 1;
+            if (column_x < column_y) {
+                remove_x = column_x;
+                remove_y = column_y - 1;
 
-        } else if (column_x > column_y) {
-            remove_x = column_x - 1;
-            remove_y = column_y;
+            } else if (column_x > column_y) {
+                remove_x = column_x - 1;
+                remove_y = column_y;
 
-        } else {
-            throw new IOException("X column and Y column have the same value.");
+            } else {
+                throw new IOException("X column and Y column have the same value.");
+            }
         }
 
         createFeatureType(typeName, srs);
@@ -150,7 +152,7 @@ public class CSVFeatureReader implements FeatureReader {
             ftb.setCRS(crs);
             ftb.add("the_geom", Geometry.class);
 
-            // Skip first two columns, expected these to be X and Y values
+            // Skip columns that contain x and y values
             for (int i = 0; i < columns.size(); i++) {
                 if (i != column_x && i != column_y) {
                     ftb.add(columns.get(i), String.class);
@@ -188,13 +190,18 @@ public class CSVFeatureReader implements FeatureReader {
             } else {
                 SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
 
-                Coordinate coordinate = new Coordinate(fixDecimals(field.get(column_x)), fixDecimals(field.get(column_y)));
+                if (column_x >= 0 && column_y >= 0) {
+                    Coordinate coordinate = new Coordinate(fixDecimals(field.get(column_x)), fixDecimals(field.get(column_y)));
 
-                // Remove first two columns
-                field.remove(remove_x);
-                field.remove(remove_y);
+                    // Remove x and y columns
+                    field.remove(remove_x);
+                    field.remove(remove_y);
 
-                sfb.add(gf.createPoint(coordinate));
+                    sfb.add(gf.createPoint(coordinate));
+                } else {
+                    sfb.add(gf.createPoint(new Coordinate(0.0, 0.0)));
+                }
+                
                 sfb.addAll(field);
                 feature = sfb.buildFeature(Integer.toString(featureId++));
 

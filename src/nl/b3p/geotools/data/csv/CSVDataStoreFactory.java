@@ -148,10 +148,10 @@ public class CSVDataStoreFactory implements FileDataStoreFactorySpi {
             } else if (params.get(PARAM_COLUMN_X.key) instanceof String) {
                 column_x = Integer.parseInt((String) params.get(PARAM_COLUMN_X.key));
             } else {
-                column_x = 0;
+                column_x = -1;
             }
         } else {
-            column_x = 0;
+            column_x = -1;
         }
 
         if (params.containsKey(PARAM_COLUMN_Y.key)) {
@@ -160,10 +160,10 @@ public class CSVDataStoreFactory implements FileDataStoreFactorySpi {
             } else if (params.get(PARAM_COLUMN_Y.key) instanceof String) {
                 column_y = Integer.parseInt((String) params.get(PARAM_COLUMN_Y.key));
             } else {
-                column_y = 1;
+                column_y = -1;
             }
         } else {
-            column_y = 1;
+            column_y = -1;
         }
 
         return new CSVDataStore(url, srs, checkColumnCount, seperator, column_x, column_y);
