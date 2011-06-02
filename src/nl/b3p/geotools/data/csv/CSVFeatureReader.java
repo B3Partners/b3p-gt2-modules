@@ -52,7 +52,7 @@ public class CSVFeatureReader implements FeatureReader {
 
     public CSVFeatureReader(URL url, String typeName, String srs, boolean checkColumnCount, char seperator, int column_x, int column_y, String encoding) throws IOException {
         CountingInputStream cis = new CountingInputStream(url.openStream());
-        inputStreamReader = new InputStreamReader(cis, CharSe);
+        inputStreamReader = new InputStreamReader(cis, encoding);
         inputstream = new CsvInputStream(inputStreamReader);
         inputstream.setCheckColumnCount(checkColumnCount);
         inputstream.setSeparator(seperator);

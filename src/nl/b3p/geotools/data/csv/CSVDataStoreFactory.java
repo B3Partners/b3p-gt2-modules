@@ -167,15 +167,17 @@ public class CSVDataStoreFactory implements FileDataStoreFactorySpi {
             column_y = -1;
         }
 
+        // volgens http spec moet iso-8859-1 gebruikt worden indien niet gespecificeerd
+        // dit nemen we hier over
         String encoding = null;
         if (params.containsKey(PARAM_ENCODING.key)) {
             if (params.get(PARAM_ENCODING.key) instanceof String) {
                 encoding = (String) params.get(PARAM_ENCODING.key);
             } else {
-                encoding = "";
+                encoding = "ISO-8859-1";
             }
         } else {
-            encoding = "";
+            encoding = "ISO-8859-1";
         }
 
         return new CSVDataStore(url, srs, checkColumnCount, seperator, column_x, column_y, encoding);
