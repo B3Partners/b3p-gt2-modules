@@ -202,7 +202,7 @@ public class CSVFeatureReader implements FeatureReader {
                     sfb.add(gf.createPoint(new Coordinate(0.0, 0.0)));
                 }
                 
-                sfb.addAll(field);
+                sfb.addAll(field.toArray());
                 feature = sfb.buildFeature(Integer.toString(featureId++));
 
                 return true;
