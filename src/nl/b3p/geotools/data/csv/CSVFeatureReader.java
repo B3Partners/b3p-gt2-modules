@@ -182,7 +182,7 @@ public class CSVFeatureReader implements FeatureReader {
             return false;
         }*/
 
-        List<String> field;
+        List<Object> field;
         try {
             if ((field = inputstream.readRecordAsList()) == null) {
                 //close();
@@ -216,8 +216,8 @@ public class CSVFeatureReader implements FeatureReader {
         inputStreamReader.close();
     }
 
-    private static double fixDecimals(String value) {
-        value = value.trim();
+    private static Double fixDecimals(Object value2) {
+        String value = value2.toString().trim();
         if (value.contains(",")) {
             if (value.contains(".")) {
                 value = value.replaceAll("[.]", "");
