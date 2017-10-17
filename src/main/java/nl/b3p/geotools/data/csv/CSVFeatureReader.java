@@ -21,10 +21,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.collection.ListFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.geotools.feature.IllegalAttributeException;
+import org.opengis.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
@@ -36,19 +38,20 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public class CSVFeatureReader implements FeatureReader {
 
-    private static final Log log = LogFactory.getLog(CSVDataStore.class);
+    private static final Log LOG = LogFactory.getLog(CSVDataStore.class);
     private GeometryFactory gf;
     private SimpleFeatureType ft;
-    private Map<String, String[]> metadata = new HashMap<String, String[]>();
+    private Map<String, String[]> metadata = new HashMap<>();
     private SimpleFeature feature;
     private CsvInputStream inputstream;
     private int featureId = 0;
     private int column_x = -1, column_y = -1;
     private int remove_x = -1, remove_y = -1;
-    private char seperator;
-    private URL url;
-    private boolean checkColumnCount;
+    private final char seperator;
+    private final URL url;
+    private final boolean checkColumnCount;
     private InputStreamReader inputStreamReader;
+    private ListFeatureCollection collList;
 
     public CSVFeatureReader(URL url, String typeName, String srs, boolean checkColumnCount, char seperator, int column_x, int column_y, String encoding) throws IOException {
         CountingInputStream cis = new CountingInputStream(url.openStream());
@@ -82,6 +85,7 @@ public class CSVFeatureReader implements FeatureReader {
     }
 
     private void createFeatureType(String typeName, String srs) throws DataSourceException {
+        collList = null;
         CoordinateReferenceSystem crs = null;
         String[] csMetadata = metadata.get("coordinatesystem");
         if (csMetadata != null) {
@@ -131,14 +135,17 @@ public class CSVFeatureReader implements FeatureReader {
             if (columns.size() == 1) {
                 String[] values = null;
 
-                if (seperator == ',') {
-                    values = columns.get(0).split(";");
-                    inputstream.setSeparator(';');
-                } else if (seperator == ';') {
-                    values = columns.get(0).split(",");
-                    inputstream.setSeparator(',');
-                } else {
-                    throw new IOException("Please specify a seperator value, columncount returned 1");
+                switch (seperator) {
+                    case ',':
+                        values = columns.get(0).split(";");
+                        inputstream.setSeparator(';');
+                        break;
+                    case ';':
+                        values = columns.get(0).split(",");
+                        inputstream.setSeparator(',');
+                        break;
+                    default:
+                        throw new IOException("Please specify a seperator value, columncount returned 1");
                 }
 
                 if (values.length == 1) {
@@ -160,6 +167,7 @@ public class CSVFeatureReader implements FeatureReader {
             }
 
             ft = ftb.buildFeatureType();
+            LOG.debug("built featuretype: " + ft);
 
         } catch (Exception e) {
             throw new DataSourceException("Error creating SimpleFeatureType", e);
@@ -201,10 +209,10 @@ public class CSVFeatureReader implements FeatureReader {
                 } else {
                     sfb.add(gf.createPoint(new Coordinate(0.0, 0.0)));
                 }
-                
+
                 sfb.addAll(field.toArray());
                 feature = sfb.buildFeature(Integer.toString(featureId++));
-
+                LOG.debug("Created feature: " + feature);
                 return true;
             }
         } catch (CsvFormatException e) {
@@ -214,6 +222,7 @@ public class CSVFeatureReader implements FeatureReader {
 
     public void close() throws IOException {
         inputStreamReader.close();
+        collList = null;
     }
 
     private static Double fixDecimals(Object value2) {
@@ -225,5 +234,16 @@ public class CSVFeatureReader implements FeatureReader {
             value = value.replaceAll("[,]", ".");
         }
         return Double.parseDouble(value);
+    }
+
+    public SimpleFeatureCollection getFeatureCollection() throws IOException {
+        if (collList == null || collList.isEmpty()) {
+            LOG.debug("Creating feature collection");
+            collList = new ListFeatureCollection(this.getFeatureType());
+            while (hasNext()) {
+                collList.add(next());
+            }
+        }
+        return collList;
     }
 }

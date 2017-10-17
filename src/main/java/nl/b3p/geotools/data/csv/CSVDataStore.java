@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultServiceInfo;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureWriter;
@@ -16,6 +17,8 @@ import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.ServiceInfo;
 import org.geotools.data.Transaction;
+import org.geotools.data.collection.CollectionFeatureSource;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.NameImpl;
 import org.opengis.feature.simple.SimpleFeature;
@@ -137,43 +140,48 @@ public class CSVDataStore implements FileDataStore {
         return Collections.singletonList(typeName);
     }
 
-
     @Override
     public SimpleFeatureSource getFeatureSource() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getFeatureSource(typename);
     }
 
     @Override
     public SimpleFeatureSource getFeatureSource(String string) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // TODO dit is suboptimaal omdat de complete FC wordt geladen, het zou mogelijk volstaan om de eerste te paar te laden..
+        // vooral omdat er featureSource#getSchema() ed wordt gedaan
+        SimpleFeatureCollection collection = ((CSVFeatureReader) this.getFeatureReader(this.typename)).getFeatureCollection();
+        return new CollectionFeatureSource(collection);
     }
 
     @Override
     public SimpleFeatureSource getFeatureSource(Name name) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return getFeatureSource(name.getLocalPart());
     }
 
     @Override
     public void createSchema(SimpleFeatureType t) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
     @Override
     public void updateSchema(SimpleFeatureType sft) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
     @Override
     public void updateSchema(Name name, SimpleFeatureType t) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
     @Override
     public void updateSchema(String string, SimpleFeatureType sft) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
     @Override
     public void removeSchema(Name name) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 
     @Override
     public void removeSchema(String string) throws IOException {
@@ -231,7 +239,7 @@ public class CSVDataStore implements FileDataStore {
     public void dispose() {
         try {
             this.featureReader.close();
-        } catch (IOException ex) {
+        } catch (IOException | NullPointerException ex) {
             // ignore
         }
         this.featureReader = null;
