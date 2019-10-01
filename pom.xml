@@ -245,7 +245,7 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <!-- tomcat 7 heeft 3.0 als spec -->
-                <version>3.0.1</version>
+                <version>4.0.1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
