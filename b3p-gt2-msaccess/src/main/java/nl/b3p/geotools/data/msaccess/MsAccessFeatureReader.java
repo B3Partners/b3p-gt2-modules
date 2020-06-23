@@ -17,17 +17,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import org.geotools.data.FeatureReader;
-import org.geotools.feature.IllegalAttributeException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.referencing.NamedIdentifier;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
