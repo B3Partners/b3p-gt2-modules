@@ -1,0 +1,43 @@
+tag-template: "v$NEXT_MAJOR_VERSION.NEXT_MINOR_VERSION.NEXT_PATCH_VERSION"
+name-template: "v$NEXT_MAJOR_VERSION.NEXT_MINOR_VERSION.NEXT_PATCH_VERSION"
+
+version-template: "$MAJOR.$MINOR.$PATCH"
+
+template: |
+  ## Aanpassingen
+  $CHANGES
+
+categories:
+  - title: 🚀 Nieuwe features en verbeteringen
+    labels:
+      - enhancement
+      - feature
+  - title: 🐛 Bug Fixes
+    labels:
+      - bug
+      - fix
+      - bugfix
+      - regression
+  - title: Beveiligings updates en Fixes
+    labels:
+      - security
+  - title: 📖 Documentatie updates
+    label: documentation
+  - title: 🚨 Verwijderd
+    label: removed
+  - title: ⚠️ Deprecated
+    label: deprecated
+  - title: 🚦 Testcases
+    labels:
+      - tests
+      - test
+  - title: 🔨 Klussen
+    labels:
+      - task
+      - chore
+  - title: 🔨 Dependency updates
+    label: dependencies
+
+replacers:
+  - search: '/CVE-(\d{4})-(\d+)/g'
+    replace: 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-$1-$2'
