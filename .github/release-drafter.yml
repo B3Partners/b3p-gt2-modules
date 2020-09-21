@@ -1,7 +1,7 @@
-tag-template: "v$NEXT_MAJOR_VERSION.NEXT_MINOR_VERSION.NEXT_PATCH_VERSION"
-name-template: "v$NEXT_MAJOR_VERSION.NEXT_MINOR_VERSION.NEXT_PATCH_VERSION"
+tag-template: "jdbc-util-$NEXT_MINOR_VERSION"
+name-template: v$NEXT_MINOR_VERSION 🎁
 
-version-template: "$MAJOR.$MINOR.$PATCH"
+version-template: "$MAJOR.$MINOR"
 
 template: |
   ## Aanpassingen
