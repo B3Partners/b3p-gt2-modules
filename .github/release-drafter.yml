@@ -1,5 +1,7 @@
+# zie https://github.com/release-drafter/release-drafter voor uitleg
+
 tag-template: "b3p-gt2-modules-$NEXT_MINOR_VERSION"
-name-template: v$NEXT_MINOR_VERSION 🎁
+name-template: "v$NEXT_MINOR_VERSION 🎁"
 
 version-template: "$MAJOR.$MINOR"
 
