@@ -75,7 +75,7 @@
         <jts.version>1.18.1</jts.version>
         <slf4j.version>1.7.30</slf4j.version>
         <hibernate.version>3.6.10.Final</hibernate.version>
-        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
     </properties>
 
     <dependencyManagement>
