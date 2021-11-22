@@ -1,7 +1,7 @@
 # zie https://github.com/release-drafter/release-drafter voor uitleg
 version-template: "$MAJOR.$MINOR"
 
-tag-template: "jdbc-util-$NEXT_MINOR_VERSION"
+tag-template: "b3p-gt2-modules-$NEXT_MINOR_VERSION"
 name-template: v$NEXT_MINOR_VERSION 🎁
 
 template: |
