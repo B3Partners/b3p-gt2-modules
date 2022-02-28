@@ -5,7 +5,7 @@
     <parent>
         <groupId>nl.b3p</groupId>
         <artifactId>b3p-gt2-modules</artifactId>
-        <version>8.3</version>
+        <version>8.4-SNAPSHOT</version>
     </parent>
 
     <groupId>nl.b3p</groupId>
