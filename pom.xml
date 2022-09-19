@@ -73,7 +73,7 @@
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <geotools.version>27.1</geotools.version>
         <jts.version>1.19.0</jts.version>
-        <slf4j.version>2.0.0</slf4j.version>
+        <slf4j.version>2.0.1</slf4j.version>
         <hibernate.version>3.6.10.Final</hibernate.version>
         <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
     </properties>
