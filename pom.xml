@@ -71,7 +71,7 @@
         <maven.compiler.target>${project.build.targetVersion}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-        <geotools.version>27.2</geotools.version>
+        <geotools.version>28.0</geotools.version>
         <jts.version>1.19.0</jts.version>
         <slf4j.version>2.0.4</slf4j.version>
         <hibernate.version>3.6.10.Final</hibernate.version>
