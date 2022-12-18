@@ -4,7 +4,7 @@ updates:
     directory: '/'
     schedule:
       interval: weekly
-      day: sunday
+      day: monday
       time: '23:00'
       timezone: 'Europe/Amsterdam'
     labels:
@@ -15,7 +15,7 @@ updates:
     directory: '/'
     schedule:
       interval: weekly
-      day: sunday
+      day: monday
       time: '23:00'
       timezone: 'Europe/Amsterdam'
     labels:
